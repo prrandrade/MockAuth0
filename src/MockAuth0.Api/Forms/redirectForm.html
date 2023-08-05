@@ -1,0 +1,43 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+
+    <title>Mock Authentication</title>
+</head>
+<body>
+    <div class="jumbotron jumbotron-fluid">
+	    <div class="container">
+            
+		    <div class="row p-2">
+			    <div class="col">
+				    <h1 class="display-4">Mock Authentication</h1>
+			    </div>
+		    </div>
+
+		    <div class="row p-2">
+				<div class="col">
+					<p class="lead">Redirecting...</p>
+				</div>
+		    </div>
+
+
+		    <form name="form" method="post" action="{{callback}}" enctype="application/x-www-form-urlencoded">
+			    <input readonly="readonly" type="hidden" name="id_token" class="form-control" value="{{jwtToken}}">
+			    <input readonly="readonly" type="hidden" name="state" class="form-control" value="{{state}}">
+		    </form>
+	    </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
+    <script>
+        setTimeout(function () {
+            document.form.submit();
+        }, 2000);
+    </script>
+</body>
+</html>
