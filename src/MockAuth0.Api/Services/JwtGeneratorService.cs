@@ -31,8 +31,9 @@ namespace MockAuth0.Api.Services
         public IList<JsonWebKey> JwksList { get; }
 
         private readonly AddressesModel _addressesModel;
+        private readonly IDatabaseService _databaseService;
 
-        public JwtGeneratorService(AddressesModel addressesModel)
+        public JwtGeneratorService(AddressesModel addressesModel, IDatabaseService databaseService)
         {
             Rsa = RSA.Create(2048);
             PublicKey = new(Rsa.ExportParameters(false))
@@ -58,6 +59,7 @@ namespace MockAuth0.Api.Services
             Jwks = new(JwksStr);
 
             _addressesModel = addressesModel;
+            _databaseService = databaseService;
         }
 
         public string GenerateToken(string email, string clientId, string organizationId, string nonce, List<KeyValuePair<string, string>> customClaims)
@@ -80,10 +82,23 @@ namespace MockAuth0.Api.Services
             };
             claims.AddRange(customClaims.Select(customClaim => new Claim(customClaim.Key, customClaim.Value)));
 
+            #region Saving Information inside database
+            var currentInfo = _databaseService.GetByEmailAndClientIdAndOrganizationId(email, clientId, organizationId);
+            if (currentInfo == null)
+            {
+                currentInfo = new()
+                {
+                    Email = email,
+                    OrganizationId = organizationId,
+                    Clientid = clientId
+                };
+            }
+            currentInfo.ClaimsAndValues = customClaims.ToDictionary(x => x.Key, x => x.Value);
+            _databaseService.Save(currentInfo);
+            #endregion
+
             var header = new JwtHeader(credentials);
-
             var payload = new JwtPayload(claims);
-
             var token = new JwtSecurityToken(header, payload);
 
             return new JwtSecurityTokenHandler().WriteToken(token);

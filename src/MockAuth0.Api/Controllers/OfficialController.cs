@@ -11,12 +11,14 @@ namespace MockAuth0.Api.Controllers
         private readonly IJwtGeneratorService _jwtGeneratorService;
         private readonly List<OrganizationConfigurationModel> _organizations;
         private readonly AddressesModel _addressesModel;
+        private readonly IDatabaseService _databaseService;
 
-        public OfficialController(List<OrganizationConfigurationModel> organizations, IJwtGeneratorService jwtGeneratorService, AddressesModel addressesModel)
+        public OfficialController(List<OrganizationConfigurationModel> organizations, IJwtGeneratorService jwtGeneratorService, AddressesModel addressesModel, IDatabaseService databaseService)
         {
             _organizations = organizations;
             _addressesModel = addressesModel;
             _jwtGeneratorService = jwtGeneratorService;
+            _databaseService = databaseService;
         }
 
 
@@ -79,11 +81,13 @@ namespace MockAuth0.Api.Controllers
             var claimPart = System.IO.File.ReadAllText("forms/formPart.html");
             foreach (var possibleClaim in currentOrganization.Claims)
             {
+                var currentInfo = _databaseService.GetByEmailAndClientIdAndOrganizationId(loginHint, clientId, organizationId);
+                
                 var claimTempPart = claimPart;
                 claimTempPart = claimTempPart
                     .Replace("{{claimFullName}}", possibleClaim.FullName)
                     .Replace("{{claimShortName}}", possibleClaim.ShortName)
-                    .Replace("{{claimValue}}", "");
+                    .Replace("{{claimValue}}",  (currentInfo?.ClaimsAndValues.FirstOrDefault(x => x.Key == possibleClaim.FullName))?.Value ?? "");                
 
                 claimFinalPart += claimTempPart;
             }
