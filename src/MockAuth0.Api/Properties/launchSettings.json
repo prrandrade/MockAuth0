@@ -6,7 +6,7 @@
         "dotnetRunMessages": true,
         "launchBrowser": false,
         "launchUrl": ".well-known/openid-configuration",
-        "applicationUrl": "https://localhost:5091"
+        "applicationUrl": "https://localhost:5100"
     }
   }
 }

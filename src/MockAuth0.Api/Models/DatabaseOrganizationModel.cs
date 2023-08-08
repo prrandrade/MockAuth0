@@ -1,10 +1,8 @@
 ﻿namespace MockAuth0.Api.Models
 {
-    public class DatabaseModel
+    public class DatabaseOrganizationModel
     {
         public int Id { get; set; }
-
-        public string Email { get; set; }
 
         public string Clientid { get; set; }
 
@@ -12,5 +10,7 @@
 
         public Dictionary<string, string> ClaimsAndValues { get; set; } = new();
     }
+
+    
 }
 

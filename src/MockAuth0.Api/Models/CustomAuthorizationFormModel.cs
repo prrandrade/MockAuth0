@@ -4,6 +4,9 @@ namespace MockAuth0.Api.Models
 {
     public class CustomAuthorizationFormModel
     {
+	    [JsonPropertyName("id")]
+		public int Id { get; set; }
+
         [JsonPropertyName("email")]
         public string Email { get; set; }
 

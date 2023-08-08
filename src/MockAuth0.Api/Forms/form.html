@@ -30,28 +30,34 @@
 
 				<div class="row p-2">
 					<div class="col">
-						<div class="form-group">
-							<label>Email</label>
-							<input readonly="readonly" type="text" name="email" class="form-control" value="{{loginHint}}">
-						</div>
-					</div>
-				</div>
-
-				<div class="row p-2">
-					<div class="col">
 						<div class="accordion" id="accordionClaims">
+
 							<div class="accordion-item">
-								<h2 class="accordion-header" id="headingClaims">
-									<button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseClaims" aria-expanded="true" aria-controls="collapseClaims">
-										Optional Claims
+								<h2 class="accordion-header" id="headingClaimsPrimary">
+									<button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseClaimsPrimary" aria-expanded="true" aria-controls="collapseClaimsPrimary">
+										Principal Claims (must be filled!)
 									</button>
 								</h2>
-								<div id="collapseClaims" class="accordion-collapse collapse" aria-labelledby="headingClaims" data-bs-parent="#accordionClaims">
+								<div id="collapseClaimsPrimary" class="accordion-collapse" aria-labelledby="headingClaimsPrimary" data-bs-parent="#accordionClaims">
 									<div class="accordion-body">
-										{{claims}}
+										{{claimsPrimary}}
 									</div>
 								</div>
 							</div>
+
+							<div class="accordion-item">
+								<h2 class="accordion-header" id="headingClaimsSecondary">
+									<button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseClaimsSecondary" aria-expanded="true" aria-controls="collapseClaimsSecondary">
+										Other Claims
+									</button>
+								</h2>
+								<div id="collapseClaimsSecondary" class="accordion-collapse collapse" aria-labelledby="headingClaimsSecondary" data-bs-parent="#accordionClaims">
+									<div class="accordion-body">
+										{{claimsSecondary}}
+									</div>
+								</div>
+							</div>
+
 						</div>
 					</div>
 				</div>

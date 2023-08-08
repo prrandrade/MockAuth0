@@ -12,7 +12,6 @@ builder.Services.AddSingleton(builder.Configuration.GetSection("Organizations").
 builder.Services.AddSingleton(builder.Configuration.GetSection("Addresses").Get<AddressesModel>());
 
 builder.Services.AddSingleton<IJwtGeneratorService, JwtGeneratorService>();
-builder.Services.AddSingleton<IDatabaseService, DatabaseService>();
 builder.Services.AddControllers();
 
 var app = builder.Build();

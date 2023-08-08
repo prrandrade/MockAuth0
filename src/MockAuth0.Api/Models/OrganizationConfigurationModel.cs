@@ -24,5 +24,7 @@
         public string ShortName { get; set; }
 
         public string DefaultValue { get; set; }
+
+        public bool IsPrincipal { get; set; }
     }
 }

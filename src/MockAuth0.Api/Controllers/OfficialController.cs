@@ -5,20 +5,18 @@ using System.Text.Json;
 
 namespace MockAuth0.Api.Controllers
 {
-    [ApiController]
+	[ApiController]
     public class OfficialController : ControllerBase
     {
         private readonly IJwtGeneratorService _jwtGeneratorService;
         private readonly List<OrganizationConfigurationModel> _organizations;
         private readonly AddressesModel _addressesModel;
-        private readonly IDatabaseService _databaseService;
 
-        public OfficialController(List<OrganizationConfigurationModel> organizations, IJwtGeneratorService jwtGeneratorService, AddressesModel addressesModel, IDatabaseService databaseService)
+        public OfficialController(List<OrganizationConfigurationModel> organizations, IJwtGeneratorService jwtGeneratorService, AddressesModel addressesModel)
         {
             _organizations = organizations;
             _addressesModel = addressesModel;
             _jwtGeneratorService = jwtGeneratorService;
-            _databaseService = databaseService;
         }
 
 
@@ -49,7 +47,7 @@ namespace MockAuth0.Api.Controllers
 
         [HttpGet]
         [Route("authorize")]
-        public IActionResult AuthorizationEndpont([FromQuery(Name = "client_id")] string clientId, [FromQuery(Name = "redirect_uri")] string redirectUri, [FromQuery(Name = "response_type")] string responseType, [FromQuery(Name = "scope")] string scope, [FromQuery(Name = "response_mode")] string responseMode, [FromQuery] string nonce, [FromQuery] string auth0Client, [FromQuery(Name="organization")] string organizationId, [FromQuery(Name = "login_hint")] string loginHint, [FromQuery] string state, [FromQuery(Name = "x-client-SKU")] string xClientSku, [FromQuery(Name = "x-client-ver")] string xClientVer)
+        public IActionResult AuthorizationEndpont([FromQuery(Name = "client_id")] string clientId, [FromQuery(Name = "redirect_uri")] string redirectUri, [FromQuery(Name = "response_type")] string responseType, [FromQuery(Name = "scope")] string scope, [FromQuery(Name = "response_mode")] string responseMode, [FromQuery] string nonce, [FromQuery] string auth0Client, [FromQuery(Name="organization")] string organizationId, [FromQuery] string state, [FromQuery(Name = "x-client-SKU")] string xClientSku, [FromQuery(Name = "x-client-ver")] string xClientVer)
         {
             var currentOrganization = _organizations.FirstOrDefault(x => x.Id == organizationId);
             if (currentOrganization == null)
@@ -59,14 +57,13 @@ namespace MockAuth0.Api.Controllers
 
             var file = System.IO.File.ReadAllText("forms/form.html");
             file = file
-                .Replace("{{clientId}}", clientId)
+	            .Replace("{{clientId}}", clientId)
                 .Replace("{{redirectUri}}", redirectUri)
                 .Replace("{{responseType}}", responseType)
                 .Replace("{{scope}}", scope)
                 .Replace("{{responseMode}}", responseMode)
                 .Replace("{{nonce}}", nonce)
                 .Replace("{{auth0Client}}", auth0Client)
-                .Replace("{{loginHint}}", loginHint)
                 .Replace("{{state}}", state)
                 .Replace("{{xClientSku}}", xClientSku)
                 .Replace("{{xClientVer}}", xClientVer);
@@ -77,23 +74,38 @@ namespace MockAuth0.Api.Controllers
                 .Replace("{{organizationRedirectUriForLogin}}", currentOrganization.RedirectUriForLogin)
                 .Replace("{{organizationRedirectUriForLogout}}", currentOrganization.RedirectUriForLogout);
 
-            var claimFinalPart = "";
+            
             var claimPart = System.IO.File.ReadAllText("forms/formPart.html");
-            foreach (var possibleClaim in currentOrganization.Claims)
+
+			#region Primary Claims
+			var claimFinalPartPrimary = "";
+			foreach (var possibleClaim in currentOrganization.Claims.Where(x => x.IsPrincipal))
+			{
+				var claimTempPartPrimary = claimPart;
+				claimTempPartPrimary = claimTempPartPrimary
+					.Replace("{{claimFullName}}", possibleClaim.FullName)
+					.Replace("{{claimShortName}}", possibleClaim.ShortName)
+					.Replace("{{claimValue}}", possibleClaim.DefaultValue);
+
+				claimFinalPartPrimary += claimTempPartPrimary;
+			}
+			file = file.Replace("{{claimsPrimary}}", claimFinalPartPrimary);
+			#endregion
+
+			#region Secondary Claims
+			var claimFinalPartSecondary = "";
+			foreach (var possibleClaim in currentOrganization.Claims.Where(x => !x.IsPrincipal))
             {
-                var currentInfo = _databaseService.GetByEmailAndClientIdAndOrganizationId(loginHint, clientId, organizationId);
-                
-                var claimTempPart = claimPart;
-                claimTempPart = claimTempPart
-                    .Replace("{{claimFullName}}", possibleClaim.FullName)
+	            var claimTempPartSecondary = claimPart;
+                claimTempPartSecondary = claimTempPartSecondary
+					.Replace("{{claimFullName}}", possibleClaim.FullName)
                     .Replace("{{claimShortName}}", possibleClaim.ShortName)
-                    .Replace("{{claimValue}}",  (currentInfo?.ClaimsAndValues.FirstOrDefault(x => x.Key == possibleClaim.FullName))?.Value ?? "");                
+					.Replace("{{claimValue}}", possibleClaim.DefaultValue);
 
-                claimFinalPart += claimTempPart;
+				claimFinalPartSecondary += claimTempPartSecondary;
             }
-
-            file = file.Replace("{{claims}}", claimFinalPart);
-
+            file = file.Replace("{{claimsSecondary}}", claimFinalPartSecondary);
+            #endregion
 
             return Content(file, "text/html");
         }
