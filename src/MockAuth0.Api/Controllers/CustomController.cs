@@ -43,9 +43,6 @@ namespace MockAuth0.Api.Controllers
                 }
             }
 
-
-
-
             var token = _jwtGeneratorService.GenerateToken(model.Id, model.Email, model.ClientId, model.OrganizationId, model.Nonce, claimList);
 
             var file = System.IO.File.ReadAllText("forms/redirectForm.html");
